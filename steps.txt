@@ -1,0 +1,21 @@
+1. EDA -> We analysis the data set 
+    i. Dataset loaded
+    ii. Shape and columns documented
+    iii. Missing values checked
+    iv. Duplicate records checked
+    v. Statistical summary
+    vi. Target distribution chart
+    vii. Histograms
+    viii. Correlation heatmap
+    ix. Boxplots
+    x. Initial research observations
+
+2. Data Preprocessing & Feature Engineering
+    include a Preprocessing Methodology section describing:
+
+    i. Missing value handling.
+    ii. Duplicate removal.
+    iii. Outlier treatment using IQR.
+    iv. Feature scaling with StandardScaler.
+    v. Train-test split (80:20 with stratification).
+    vi. Feature importance analysis.
