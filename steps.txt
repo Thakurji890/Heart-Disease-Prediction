@@ -19,3 +19,7 @@
     iv. Feature scaling with StandardScaler.
     v. Train-test split (80:20 with stratification).
     vi. Feature importance analysis.
+
+
+
+## pip install -r requirement.txt for install packages ##
