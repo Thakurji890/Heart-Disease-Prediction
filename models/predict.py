@@ -72,6 +72,6 @@ if __name__ == "__main__":
     print(predict(many_people))
 
     # ---- Or load a whole CSV of people and predict for all of them ----
-    # many_people = pd.read_csv("data/raw/new_patients.csv")
+    # many_people = pd.read_csv("data/raw/bulk_patients.csv")
     # results = predict(many_people)
     # results.to_csv("predictions.csv", index=False)
