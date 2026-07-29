@@ -15,7 +15,7 @@ import joblib
 # ---- 1. Load the saved pipeline pieces ----
 preprocessor = joblib.load("models/preprocessor.pkl")
 iqr_bounds = joblib.load("models/iqr_bounds.pkl")
-model = joblib.load("models/random_forest.pkl")
+model = joblib.load("models/hdp_dtrf.pkl")
 
 NUMERIC_COLS = ["age", "trestbps", "chol", "thalach", "oldpeak"]
 
@@ -38,7 +38,8 @@ def predict(patients: pd.DataFrame) -> pd.DataFrame:
 
     X = preprocessor.transform(df)
     CATEGORICAL_COLS = ["sex", "cp", "fbs", "restecg", "exang", "slope", "ca", "thal"]
-    X = pd.DataFrame(X, columns=NUMERIC_COLS + CATEGORICAL_COLS) 
+    cat_feature_names = preprocessor.named_transformers_["cat"]["ohe"].get_feature_names_out(CATEGORICAL_COLS)
+    X = pd.DataFrame(X, columns=NUMERIC_COLS + list(cat_feature_names)) 
 
     prediction = model.predict(X)
     probability = model.predict_proba(X)[:, 1]
