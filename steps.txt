@@ -1,25 +1,108 @@
-1. EDA -> We analysis the data set 
-    i. Dataset loaded
-    ii. Shape and columns documented
-    iii. Missing values checked
-    iv. Duplicate records checked
-    v. Statistical summary
-    vi. Target distribution chart
-    vii. Histograms
-    viii. Correlation heatmap
-    ix. Boxplots
-    x. Initial research observations
+=========================================
+ HEART DISEASE PREDICTION — PROJECT STEPS
+=========================================
 
-2. Data Preprocessing & Feature Engineering
-    include a Preprocessing Methodology section describing:
+STEP 1: Exploratory Data Analysis (01_EDA.ipynb)
+-------------------------------------------------
+  i.   Dataset loaded (heart.csv / heart2.csv with multi-hospital sources)
+  ii.  Shape and columns documented
+  iii. Missing values checked per column
+  iv.  Duplicate records checked and removed
+  v.   Statistical summary (mean, std, min, max, quartiles)
+  vi.  Target class distribution chart (balanced vs. imbalanced)
+  vii. Univariate analysis — histograms for all numeric features
+  viii.Correlation heatmap to explore inter-feature relationships
+  ix.  Boxplots for outlier visualization
+  x.   Initial research observations noted
 
-    i. Missing value handling.
-    ii. Duplicate removal.
-    iii. Outlier treatment using IQR.
-    iv. Feature scaling with StandardScaler.
-    v. Train-test split (80:20 with stratification).
-    vi. Feature importance analysis.
+STEP 2: Data Preprocessing & Feature Engineering (02_Preprocessing.ipynb)
+--------------------------------------------------------------------------
+  i.   Duplicate records removed
+  ii.  Outlier treatment using IQR method (clip strategy)
+       - IQR bounds fitted on training data only (no leakage)
+  iii. Missing value imputation
+       - Numeric: median imputation
+       - Categorical: most-frequent imputation
+  iv.  One-Hot Encoding for categorical features
+       (sex, cp, fbs, restecg, exang, slope, ca, thal)
+       - Avoids treating category codes as ordinal/numeric values
+  v.   Feature scaling using StandardScaler
+       - Fitted only on training set — applied to both train and test
+  vi.  Train-test split (80:20 with stratification on target)
+  vii. Feature importance analysis
+  viii.Preprocessor pipeline saved as models/preprocessor.pkl
+  ix.  Processed splits saved:
+       data/processed/X_train.csv, X_test.csv, y_train.csv, y_test.csv
 
+STEP 3: Baseline Model Training & Ensemble (03_Baseline_Models.ipynb)
+----------------------------------------------------------------------
+  i.   6 baseline classifiers trained:
+       - Logistic Regression
+       - Decision Tree
+       - Random Forest
+       - Support Vector Machine (SVM)
+       - K-Nearest Neighbors (KNN)
+       - Naive Bayes
+  ii.  Voting Classifier (SVM + Logistic Regression, soft voting) added
+  iii. Hyperparameter tuning via GridSearchCV with StratifiedKFold (5-fold)
+       applied to all tunable models
+  iv.  Top-3 Ensemble: soft-voting VotingClassifier built from
+       the 3 best CV-scoring tuned models
+  v.   Overall best model auto-selected by CV accuracy:
+       → Random Forest (CV Accuracy: 0.8270)
+  vi.  Confusion matrix, classification report, ROC curve generated
+  vii. Best model saved as models/random_forest.pkl
 
+  Results Summary:
+  ┌──────────────────────────────┬──────────────────┐
+  │ Model                        │ Best CV Accuracy │
+  ├──────────────────────────────┼──────────────────┤
+  │ Random Forest                │ 0.8270  ✅ BEST  │
+  │ Ensemble (RF + KNN + SVM)    │ 0.8243           │
+  │ KNN                          │ 0.8243           │
+  │ Support Vector Machine       │ 0.8229           │
+  │ Voting Classifier (SVM + LR) │ 0.8229           │
+  │ Logistic Regression          │ 0.8079           │
+  │ Naive Bayes                  │ 0.7547           │
+  │ Decision Tree                │ 0.7494           │
+  └──────────────────────────────┴──────────────────┘
 
-## pip install -r requirement.txt for install packages ##
+STEP 4: Advanced Model Comparison (04_All_Models_Comparison.ipynb)
+------------------------------------------------------------------
+  i.   Gradient Boosting and XGBoost compared against baselines
+  ii.  HDP-DTRF model implemented:
+       - Hybrid Decision Tree Random Forest + Stochastic Gradient Boosting
+       - Based on: Jawalkar et al. (2023) research paper
+       - GradientBoostingClassifier with subsample=0.8, max_features="sqrt"
+  iii. HDP-DTRF model saved as models/hdp_dtrf.pkl
+  iv.  Production inference script (models/predict.py) updated to use
+       hdp_dtrf.pkl with the preprocessor pipeline
+
+STEP 5: External Validation (05_External_Validation.ipynb)
+----------------------------------------------------------
+  i.   Leave-One-Hospital-Out validation implemented
+  ii.  4 hospital sources used: Cleveland, Hungarian, VA, Switzerland
+  iii. For each source: train on 3 hospitals, test on 1 held-out hospital
+  iv.  Metrics: Accuracy, Balanced Accuracy, ROC-AUC, F1
+       (Balanced metrics used because Switzerland is 93.5% positive cases)
+  v.   SVM vs. Random Forest generalization compared across hospitals
+
+STEP 6: Ensemble & Evaluation Honesty (06_Ensemble_And_Evaluation_Honesty.ipynb)
+---------------------------------------------------------------------------------
+  i.   Further ensemble experiments
+  ii.  Evaluation integrity checks with proper held-out test sets
+
+=========================================
+ INSTALL DEPENDENCIES
+=========================================
+  pip install -r requirement.txt
+
+=========================================
+ RUN ORDER
+=========================================
+  01_EDA.ipynb
+  02_Preprocessing.ipynb
+  03_Baseline_Models.ipynb
+  04_All_Models_Comparison.ipynb
+  05_External_Validation.ipynb
+  06_Ensemble_And_Evaluation_Honesty.ipynb
