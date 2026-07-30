@@ -70,8 +70,15 @@ def predict(patients: pd.DataFrame) -> pd.DataFrame:
         thalach, exang, oldpeak, slope, ca, thal
     (see the category code table in the module docstring above)
 
-    Returns the same rows with two extra columns: `prediction` (0/1) and
-    `probability_of_disease` (model confidence that target == 1).
+    Returns the same rows with four extra columns:
+      - prediction           : 0 = No Disease, 1 = Heart Disease
+      - probability_of_disease : raw model confidence (0.0 – 1.0)
+      - disease_risk_pct     : probability expressed as a percentage (e.g. "82.3%")
+      - risk_level           : human-readable risk band
+                               0–30%  -> Low Risk
+                               30–50% -> Moderate Risk
+                               50–70% -> High Risk
+                               70%+   -> Very High Risk
     """
     df = patients.copy()
     _validate_categories(df)
@@ -86,12 +93,25 @@ def predict(patients: pd.DataFrame) -> pd.DataFrame:
     cat_feature_names = preprocessor.named_transformers_["cat"]["ohe"].get_feature_names_out(CATEGORICAL_COLS)
     X = pd.DataFrame(X, columns=NUMERIC_COLS + list(cat_feature_names))
 
-    prediction = model.predict(X)
+    prediction  = model.predict(X)
     probability = model.predict_proba(X)[:, 1]
 
+    def _risk_level(p: float) -> str:
+        """Convert probability to a clinical risk band."""
+        if p < 0.30:
+            return "Low Risk"
+        elif p < 0.50:
+            return "Moderate Risk"
+        elif p < 0.70:
+            return "High Risk"
+        else:
+            return "Very High Risk"
+
     result = patients.copy()
-    result["prediction"] = prediction
+    result["prediction"]            = prediction
     result["probability_of_disease"] = probability.round(3)
+    result["disease_risk_pct"]      = [f"{p*100:.1f}%" for p in probability]
+    result["risk_level"]            = [_risk_level(p) for p in probability]
     return result
 
 
@@ -103,7 +123,7 @@ if __name__ == "__main__":
         "oldpeak": 2.3, "slope": 3, "ca": 0, "thal": 7
     }])
     print("Single person result:")
-    print(predict(one_person))
+    print(predict(one_person).to_string())
 
     # ---- Example: checking MULTIPLE people at once (a batch/group) ----
     many_people = pd.DataFrame([
@@ -115,7 +135,8 @@ if __name__ == "__main__":
          "restecg": 0, "thalach": 108, "exang": 1, "oldpeak": 1.5, "slope": 2, "ca": 3, "thal": 6},
     ])
     print("\nMultiple people result:")
-    print(predict(many_people))
+    print(predict(many_people)[["age", "sex", "prediction",
+                                "probability_of_disease", "disease_risk_pct", "risk_level"]].to_string())
 
     # ---- Or load a whole CSV of people and predict for all of them ----
     # many_people = pd.read_csv("data/raw/bulk_patients.csv")
