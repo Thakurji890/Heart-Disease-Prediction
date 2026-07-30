@@ -2,8 +2,6 @@
 
 An end-to-end machine learning project for predicting heart disease using clinical patient data. The project covers the full ML pipeline — from exploratory data analysis to hyperparameter tuning, advanced ensemble methods, and rigorous external validation across multiple hospital sources.
 
-> **Repository:** https://github.com/Thakurji890/Heart-Disease-Prediction
-
 ---
 
 ## Project Structure
@@ -29,22 +27,6 @@ Heart-Disease-Prediction/
 ├── steps.txt
 └── README.md
 ```
-
----
-
-## Dataset
-
-The project uses the **UCI Heart Disease Dataset** (multi-hospital version) combining patient records from 4 hospitals:
-
-| Source | Rows | % Positive (Heart Disease) |
-|---|---|---|
-| Cleveland Clinic | 303 | 45.9% |
-| Hungarian Institute | 294 | 36.1% |
-| VA Long Beach | 200 | 74.5% |
-| University Hospital Zurich (Switzerland) | 123 | 93.5% |
-
-**13 clinical features used:**
-`age`, `sex`, `cp` (chest pain type), `trestbps` (resting blood pressure), `chol` (cholesterol), `fbs` (fasting blood sugar), `restecg` (resting ECG), `thalach` (max heart rate), `exang` (exercise-induced angina), `oldpeak` (ST depression), `slope`, `ca` (major vessels), `thal`
 
 ---
 
@@ -171,51 +153,3 @@ pip install -r requirement.txt
 | Leave-One-Hospital-Out validation | More honest real-world generalization test |
 | Soft-voting ensemble | Averages probability scores for better calibrated decisions |
 | HDP-DTRF model | Based on published research for heart disease prediction |
-
----
-
-## References & Research Papers
-
-### Primary Reference (Model Methodology)
-1. **Jawalkar, P., Nagrale, M., Sawalakhe, N., & Bhute, N. (2023).**
-   *"Early prediction of heart disease with data analysis using supervised learning with stochastic gradient boosting."*
-   International Journal of Advanced Computer Science and Applications (IJACSA), 14(1).
-   → Basis for the **HDP-DTRF hybrid model** implemented in this project.
-
-### Dataset
-2. **Detrano, R., Janosi, A., Steinbrunn, W., et al. (1989).**
-   *"International application of a new probability algorithm for the diagnosis of coronary artery disease."*
-   American Journal of Cardiology, 64(5), 304–310.
-   → Original source of the **Cleveland, Hungarian, VA, and Switzerland** heart disease datasets.
-   UCI Repository: https://archive.ics.uci.edu/dataset/45/heart+disease
-
-### Related Works
-3. **Shah, D., Patel, S., & Bharti, S. K. (2020).**
-   *"Heart Disease Prediction using Machine Learning Techniques."*
-   SN Computer Science, 1(6), 345.
-   → Comprehensive comparison of ML classifiers for heart disease prediction.
-
-4. **Mohan, S., Thirumalai, C., & Srivastava, G. (2019).**
-   *"Effective Heart Disease Prediction Using Hybrid Machine Learning Techniques."*
-   IEEE Access, 7, 81542–81554.
-   → Hybrid Random Forest + Linear Model approach; inspired the ensemble direction of this project.
-
-5. **Latha, C. B. C., & Jeeva, S. C. (2019).**
-   *"Improving the accuracy of prediction of heart disease risk based on ensemble classification techniques."*
-   Informatics in Medicine Unlocked, 16, 100203.
-   → Validates ensemble methods (Voting, Bagging, Boosting) for heart disease.
-
-6. **Breiman, L. (2001).**
-   *"Random Forests."*
-   Machine Learning, 45(1), 5–32.
-   → Foundational paper for the **Random Forest** algorithm used in this project.
-
-7. **Friedman, J. H. (2001).**
-   *"Greedy Function Approximation: A Gradient Boosting Machine."*
-   The Annals of Statistics, 29(5), 1189–1232.
-   → Foundational paper for **Gradient Boosting** (basis of HDP-DTRF).
-
-8. **Chen, T., & Guestrin, C. (2016).**
-   *"XGBoost: A Scalable Tree Boosting System."*
-   Proceedings of the 22nd ACM SIGKDD, 785–794.
-   → Paper for **XGBoost** used in model comparison notebook.
