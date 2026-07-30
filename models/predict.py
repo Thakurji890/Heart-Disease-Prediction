@@ -4,7 +4,8 @@ predict.py — run the trained heart-disease model on new patient data.
 Usage:
     python predict.py
 
-Requires: models/preprocessor.pkl, models/iqr_bounds.pkl, models/hdp_dtrf.pkl
+Model: XGBoost (Tuned) — Best ROC-AUC model (93.41% AUC, 91.18% Recall)
+Requires: models/preprocessor.pkl, models/iqr_bounds.pkl, models/xgboost_best.pkl
 (all three must be present, in that models/ folder relative to this script,
 or edit the paths below).
 
@@ -25,9 +26,10 @@ import pandas as pd
 import joblib
 
 # ---- 1. Load the saved pipeline pieces ----
+# xgboost_best.pkl: Best ROC-AUC (93.41%), Best Recall (91.18%) — ideal for medical use
 preprocessor = joblib.load("models/preprocessor.pkl")
 iqr_bounds = joblib.load("models/iqr_bounds.pkl")
-model = joblib.load("models/hdp_dtrf.pkl")
+model = joblib.load("models/xgboost_best.pkl")
 
 NUMERIC_COLS = ["age", "trestbps", "chol", "thalach", "oldpeak"]
 CATEGORICAL_COLS = ["sex", "cp", "fbs", "restecg", "exang", "slope", "ca", "thal"]
