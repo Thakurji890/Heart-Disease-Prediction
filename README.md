@@ -1,44 +1,107 @@
 # Heart Disease Prediction
 
-This repository contains an end-to-end machine learning project for predicting heart disease. The project explores a dataset containing various medical indicators to build robust classification models that predict the presence or absence of heart disease in patients.
+An end-to-end machine learning project for predicting heart disease using clinical patient data. The project covers the full ML pipeline — from exploratory data analysis to hyperparameter tuning, advanced ensemble methods, and rigorous external validation across multiple hospital sources.
+
+---
 
 ## Project Structure
 
-The project is broken down into structured Jupyter notebooks that document the workflow from initial analysis to final model selection:
+```
+Heart-Disease-Prediction/
+├── data/
+│   ├── raw/                   # Original datasets (heart.csv, heart2.csv, etc.)
+│   └── processed/             # Preprocessed train/test splits (CSV)
+├── models/
+│   ├── preprocessor.pkl       # Saved ColumnTransformer pipeline
+│   ├── random_forest.pkl      # Best tuned baseline model
+│   ├── hdp_dtrf.pkl           # HDP-DTRF (Gradient Boosting) model
+│   └── predict.py             # Production inference script
+├── notebooks/
+│   ├── 01_EDA.ipynb
+│   ├── 02_Preprocessing.ipynb
+│   ├── 03_Baseline_Models.ipynb
+│   ├── 04_All_Models_Comparison.ipynb
+│   ├── 05_External_Validation.ipynb
+│   └── 06_Ensemble_And_Evaluation_Honesty.ipynb
+├── requirement.txt
+├── steps.txt
+└── README.md
+```
 
-1. **`01_EDA.ipynb`** - **Exploratory Data Analysis**
-   - Data loading and initial inspection
-   - Statistical summaries
-   - Univariate and bivariate analysis (Histograms, Boxplots)
-   - Correlation heatmap to explore relationships between features
+---
 
-2. **`02_Preprocessing.ipynb`** - **Data Preprocessing & Feature Engineering**
-   - Handling missing values (Imputation)
-   - Removing duplicate records
-   - Outlier treatment using the IQR method
-   - Feature scaling using `StandardScaler`
-   - Train-test splitting (80:20 split with stratification)
-   - Feature importance analysis
+## Notebooks Overview
 
-3. **`03_Baseline_Models.ipynb`** - **Baseline Model Training**
-   - Training multiple baseline classifiers: Logistic Regression, Decision Tree, Random Forest, Support Vector Machine, K-Nearest Neighbors, and Naive Bayes.
-   - Initial evaluation of models based on Accuracy, Precision, Recall, F1-score, and ROC-AUC.
+### 1. `01_EDA.ipynb` — Exploratory Data Analysis
+- Dataset loading and initial inspection
+- Shape, column types, and statistical summaries
+- Missing values and duplicate record checks
+- Target class distribution
+- Univariate analysis (histograms, boxplots)
+- Bivariate analysis and correlation heatmap
+- Initial research observations
 
-4. **`04_All_Models_Comparison.ipynb`** - **Model Comparison and Tuning**
-   - Incorporating advanced models (like Gradient Boosting and XGBoost)
-   - Hyperparameter tuning using `GridSearchCV`
-   - Comprehensive model comparison and final selection
+### 2. `02_Preprocessing.ipynb` — Data Preprocessing & Feature Engineering
+- Missing value imputation (median for numeric, mode for categorical)
+- Duplicate record removal
+- Outlier treatment using the IQR method (clip strategy, fit on train only)
+- **One-Hot Encoding** for categorical features (`sex`, `cp`, `fbs`, `restecg`, `exang`, `slope`, `ca`, `thal`) to avoid ordinal bias
+- Feature scaling with `StandardScaler` (fit on train only — no data leakage)
+- Train/test split (80:20 with stratification)
+- Feature importance analysis
+- Preprocessor pipeline saved as `models/preprocessor.pkl`
+
+### 3. `03_Baseline_Models.ipynb` — Baseline Model Training & Ensemble
+- Training 6 baseline classifiers:
+  - Logistic Regression, Decision Tree, Random Forest, SVM, KNN, Naive Bayes
+- Additional **Voting Classifier (SVM + Logistic Regression)** using soft voting
+- **`GridSearchCV` hyperparameter tuning** applied to every tunable model using `StratifiedKFold`
+- Automatic selection of the overall best model by CV accuracy
+- **Top-3 Ensemble**: A soft-voting `VotingClassifier` built from the 3 best tuned models
+- Confusion matrix, classification report, and ROC curve for the best model
+- Best model saved as `models/random_forest.pkl`
+
+  | Model | Best CV Accuracy |
+  |---|---|
+  | **Random Forest** | **0.827** ✅ |
+  | Ensemble (RF + KNN + SVM) | 0.824 |
+  | KNN | 0.824 |
+  | Support Vector Machine | 0.823 |
+  | Voting Classifier (SVM + LR) | 0.823 |
+  | Logistic Regression | 0.808 |
+  | Naive Bayes | 0.755 |
+  | Decision Tree | 0.749 |
+
+### 4. `04_All_Models_Comparison.ipynb` — Advanced Model Comparison
+- Gradient Boosting and XGBoost comparison
+- **HDP-DTRF model** (Decision Tree-based Random Forest + Stochastic Gradient Boosting)
+  - Based on the methodology from *"Early prediction of heart disease with data analysis using supervised learning with stochastic gradient boosting"* (Jawalkar et al., 2023)
+  - Uses `GradientBoostingClassifier` with `subsample=0.8` and `max_features="sqrt"` for stochastic behaviour
+- Saved as `models/hdp_dtrf.pkl`
+
+### 5. `05_External_Validation.ipynb` — Leave-One-Hospital-Out Validation
+- Tests how well models **generalize to unseen hospitals**, not just unseen patients
+- Uses **Leave-One-Group-Out** strategy across 4 hospital sources:
+  - Cleveland, Hungarian, VA Long Beach, Switzerland
+- Trains on 3 hospitals, tests on the 4th — rotates through all 4
+- Reports Accuracy, **Balanced Accuracy**, **ROC-AUC**, and F1 (to handle class imbalance in Switzerland/VA sources)
+- Compares SVM vs. Random Forest on cross-hospital generalization
+
+### 6. `06_Ensemble_And_Evaluation_Honesty.ipynb` — Ensemble & Evaluation Honesty
+- Further ensemble experiments and evaluation integrity checks
+- Honest evaluation using held-out test sets
+
+---
 
 ## Requirements
 
-To run this project locally, you will need Python 3 installed. The project relies on several data science and machine learning libraries.
+Python 3.8+ is required. Install all dependencies with:
 
-You can install all dependencies by running:
 ```bash
 pip install -r requirement.txt
 ```
 
-### Dependencies Included:
+### Dependencies
 - `pandas`
 - `numpy`
 - `matplotlib`
@@ -46,8 +109,47 @@ pip install -r requirement.txt
 - `scikit-learn`
 - `xgboost`
 - `joblib`
+- `nbformat`
+
+---
 
 ## How to Run
-1. Clone this repository to your local machine.
-2. Install the required dependencies using the command above.
-3. Open Jupyter Notebook or your preferred IDE to explore and run the notebooks in order.
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Thakurji890/Heart-Disease-Prediction.git
+   cd Heart-Disease-Prediction
+   ```
+
+2. **Install dependencies**
+   ```bash
+   pip install -r requirement.txt
+   ```
+
+3. **Run notebooks in order**
+   ```
+   01_EDA.ipynb
+   02_Preprocessing.ipynb
+   03_Baseline_Models.ipynb
+   04_All_Models_Comparison.ipynb
+   05_External_Validation.ipynb
+   06_Ensemble_And_Evaluation_Honesty.ipynb
+   ```
+
+4. **Run inference on new patients**
+   ```bash
+   python models/predict.py
+   ```
+
+---
+
+## Key Design Decisions
+
+| Decision | Reason |
+|---|---|
+| One-Hot Encoding for categoricals | Avoids treating ordinal codes as continuous values |
+| IQR clipping fit only on train | Prevents data leakage from test statistics |
+| StratifiedKFold for CV | Preserves class balance in every fold |
+| Leave-One-Hospital-Out validation | More honest real-world generalization test |
+| Soft-voting ensemble | Averages probability scores for better calibrated decisions |
+| HDP-DTRF model | Based on published research for heart disease prediction |
